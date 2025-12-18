@@ -30,3 +30,20 @@ python -m venv .venv
 # source .venv/bin/activate
 
 pip install -r requirements.txt
+```
+## voronoi3d (Box-only core)
+
+`src/voronoi3d` provides a bounded 3D Voronoi core for axis-aligned boxes using SciPy Voronoi + ghost reflections.
+
+It outputs a topological diagram:
+- vertices
+- polygonal faces (internal + exposed)
+- per-cell face lists
+- cell adjacency graph
+
+Run tests:
+```powershell
+pytest -q
+```
+
+

@@ -1,0 +1,17 @@
+{
+  "avg_neighbors": 5.48,
+  "bounds_uv": {
+    "max": [
+      100.134949,
+      60.074886
+    ],
+    "min": [
+      0.0,
+      -0.0
+    ]
+  },
+  "cell_count": 200,
+  "edge_count": 610,
+  "hash_edges": "3318ff948902494d43026b3b77122d1e8f41fbc9887c3b42bca8b5d90b82c8f6",
+  "hash_vertices_uv": "cfac3afccc20fb24d9d5fdb7e1282a3a3713c9672fdc18a5d0d1c006d4fe9c59"
+}
