@@ -1,0 +1,10 @@
+{
+  "avg_neighbors": 11.49,
+  "cell_count": 200,
+  "exposed_face_count": 220,
+  "face_count": 1369,
+  "hash_adjacency_edges": "daabecb216b0a66f657da74371855a671352b8b6448563ee91dc999fd7c3d236",
+  "hash_faces": "d25cecf19f3f6e66ab71d59894aa5f13ba8bbdafaed6c3ca6a0e345d5a7ea67a",
+  "hash_vertices": "e9ccbfdc63e98355b9243e77cdcceaa1538d208babeca9297af2826502032b27",
+  "internal_face_count": 1149
+}

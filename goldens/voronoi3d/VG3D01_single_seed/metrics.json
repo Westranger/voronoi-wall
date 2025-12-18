@@ -1,0 +1,10 @@
+{
+  "avg_neighbors": 0.0,
+  "cell_count": 1,
+  "exposed_face_count": 6,
+  "face_count": 6,
+  "hash_adjacency_edges": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "hash_faces": "f879c32c11ec3dd1a44607cb0d45d07b35f8a483f3bd9dc19849de1a7e7d4923",
+  "hash_vertices": "f02611d21dd2f81483833dc8b681a18bbea5d3be8c0e0c9d2fd513fdb87ba9e3",
+  "internal_face_count": 0
+}
