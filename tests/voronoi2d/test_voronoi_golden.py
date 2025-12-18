@@ -10,7 +10,15 @@ from src.voronoi2d.geometry import plane_from_polygon, project_xyz_to_uv
 from src.voronoi2d.sampling import sample_points_in_polygon
 from src.voronoi2d.voronoi import compute_voronoi_2d
 
-from .helpers_golden import GOLDEN_ROOT, compute_metrics, save_metrics, load_metrics, save_png, assert_png_matches, update_mode
+from tests.voronoi2d.helpers_golden import (
+    GOLDEN_ROOT,
+    compute_metrics,
+    save_metrics,
+    load_metrics,
+    save_png,
+    assert_png_matches,
+    update_mode,
+)
 
 
 def _render_uv_png(diagram, polygon_uv: np.ndarray) -> bytes:

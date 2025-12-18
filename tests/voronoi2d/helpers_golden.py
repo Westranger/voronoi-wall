@@ -6,6 +6,7 @@ import hashlib
 from pathlib import Path
 import numpy as np
 from PIL import Image
+from io import BytesIO
 
 
 GOLDEN_ROOT = Path("goldens") / "voronoi2d"
@@ -101,16 +102,20 @@ def png_mean_abs_diff(a: Image.Image, b: Image.Image) -> float:
     return float(diff.mean())
 
 
-def assert_png_matches(golden_path: Path, current_png_bytes: bytes, *, mean_abs_tol: float) -> None:
-    golden_img = Image.open(golden_path)
-    cur_img = Image.open(Path(os.devnull))  # dummy to satisfy type checkers
-    # Open bytes properly:
-    from io import BytesIO
-    cur_img = Image.open(BytesIO(current_png_bytes))
+def assert_png_matches(path, png_bytes: bytes, mean_abs_tol: float):
+    ref_bytes = Path(path).read_bytes()
 
-    mad = png_mean_abs_diff(golden_img, cur_img)
-    if mad > mean_abs_tol:
-        raise AssertionError(f"PNG mean abs diff too high: {mad:.4f} > {mean_abs_tol}")
+    ref_img = Image.open(BytesIO(ref_bytes)).convert("RGB")
+    cur_img = Image.open(BytesIO(png_bytes)).convert("RGB")
+
+    ref = np.asarray(ref_img, dtype=np.int16)
+    cur = np.asarray(cur_img, dtype=np.int16)
+
+    # same shape check
+    assert ref.shape == cur.shape, f"PNG shape mismatch: ref={ref.shape} cur={cur.shape}"
+
+    mean_abs = float(np.mean(np.abs(ref - cur)))
+    assert mean_abs <= float(mean_abs_tol), f"PNG mismatch mean_abs={mean_abs:.3f} > tol={mean_abs_tol}"
 
 
 def update_mode() -> bool:

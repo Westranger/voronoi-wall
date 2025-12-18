@@ -125,7 +125,7 @@ def compute_voronoi_2d(
         vidx = [get_vertex_index(p) for p in coords]
 
         # edges for topology
-        for a, b in zip(vidx, vidx[1:].tolist() + [vidx[0]]):
+        for a, b in zip(vidx, vidx[1:] + [vidx[0]]):
             edge_map[tuple(sorted((a, b)))].add(i)
 
         cells.append(
