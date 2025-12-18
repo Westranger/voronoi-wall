@@ -168,8 +168,11 @@ def render_slice_png(
 
     V = d.vertices
     for f in d.faces:
-        if draw_exposed_only and (not f.is_exposed):
-            continue
+        if draw_exposed_only:
+            flag = getattr(f, "is_exposed", None)
+            # If the diagram doesn't provide is_exposed, do NOT filter (otherwise everything goes blank)
+            if flag is False:
+                continue
 
         vidx = list(f.vertex_indices)
         if len(vidx) < 3:
@@ -232,6 +235,11 @@ def render_slice_png(
         p2 = map_pt(p)
         q2 = map_pt(q)
         draw.line([p2, q2], fill=(0, 0, 0), width=2)
+
+    if len(segments_2d) == 0:
+        # draw a big X to make the failure visible in goldens
+        draw.line([(padding_px, padding_px), (W - padding_px, Hh - padding_px)], fill=(255, 0, 0), width=6)
+        draw.line([(W - padding_px, padding_px), (padding_px, Hh - padding_px)], fill=(255, 0, 0), width=6)
 
     buf = BytesIO()
     img.save(buf, format="PNG")

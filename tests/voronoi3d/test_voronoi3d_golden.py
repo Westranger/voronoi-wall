@@ -24,7 +24,7 @@ def test_golden_single_seed():
     d = compute_voronoi_3d(size_xyz=size, seeds_xyz=seeds, bounded=True, weld_decimals=6)
 
     metrics = compute_metrics_3d(d)
-    png_bytes = render_slice_png(d, size, axis="z", value=15.0, draw_exposed_only=True)
+    png_bytes = render_slice_png(d, size, axis="z", value=15.0, draw_exposed_only=False)
 
     if update_mode():
         save_metrics(json_path, metrics)
@@ -55,7 +55,7 @@ def test_golden_two_seeds_symmetric():
     d = compute_voronoi_3d(size_xyz=size, seeds_xyz=seeds, bounded=True, weld_decimals=6)
 
     metrics = compute_metrics_3d(d)
-    png_bytes = render_slice_png(d, size, axis="z", value=15.0, draw_exposed_only=True)
+    png_bytes = render_slice_png(d, size, axis="z", value=15.0, draw_exposed_only=False)
 
     if update_mode():
         save_metrics(json_path, metrics)
@@ -91,7 +91,7 @@ def test_golden_random_200():
     d = compute_voronoi_3d(size_xyz=size, seeds_xyz=seeds, bounded=True, weld_decimals=6)
 
     metrics = compute_metrics_3d(d)
-    png_bytes = render_slice_png(d, size, axis="z", value=size[2] * 0.5, draw_exposed_only=True)
+    png_bytes = render_slice_png(d, size, axis="z", value=size[2] * 0.5, draw_exposed_only=False)
 
     if update_mode():
         save_metrics(json_path, metrics)
