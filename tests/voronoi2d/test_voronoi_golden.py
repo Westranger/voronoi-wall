@@ -1,11 +1,10 @@
-import json
-import numpy as np
 import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from pathlib import Path
 
-from shapely.geometry import Polygon
+matplotlib.use("Agg")
+from io import BytesIO
+from PIL import Image, ImageDraw
+import numpy as np
+
 from src.voronoi2d.geometry import plane_from_polygon, project_xyz_to_uv
 from src.voronoi2d.sampling import sample_points_in_polygon
 from src.voronoi2d.voronoi import compute_voronoi_2d
@@ -21,34 +20,55 @@ from tests.voronoi2d.helpers_golden import (
 )
 
 
-def _render_uv_png(diagram, polygon_uv: np.ndarray) -> bytes:
-    fig = plt.figure(figsize=(6, 4), dpi=150)
-    ax = fig.add_subplot(111)
+def _edge_endpoints(edge):
+    # common attribute patterns
+    for A, B in [("a", "b"), ("va", "vb"), ("v0", "v1"), ("i", "j"), ("u", "v")]:
+        if hasattr(edge, A) and hasattr(edge, B):
+            return int(getattr(edge, A)), int(getattr(edge, B))
 
-    # plot polygon outline
-    p = np.vstack([polygon_uv, polygon_uv[0]])
-    ax.plot(p[:, 0], p[:, 1])
+    # sometimes stored as tuple/list
+    if hasattr(edge, "vertices"):
+        vv = getattr(edge, "vertices")
+        if isinstance(vv, (tuple, list)) and len(vv) == 2:
+            return int(vv[0]), int(vv[1])
 
-    # plot cell boundaries
-    for cell in diagram.cells:
-        c = cell.polygon_uv
-        cc = np.vstack([c, c[0]])
-        ax.plot(cc[:, 0], cc[:, 1])
+    raise TypeError(f"Don't know how to read endpoints from edge type: {type(edge)}")
 
-    ax.set_aspect("equal")
-    ax.set_axis_off()
 
-    # lock view to polygon bounds
-    poly = Polygon(polygon_uv)
-    minx, miny, maxx, maxy = poly.bounds
-    pad = 0.5
-    ax.set_xlim(minx - pad, maxx + pad)
-    ax.set_ylim(miny - pad, maxy + pad)
+def _render_uv_png(d, poly_uv: np.ndarray, img_size=(900, 600), padding_px=10) -> bytes:
+    W, H = img_size
+    img = Image.new("RGB", (W, H), (255, 255, 255))
+    draw = ImageDraw.Draw(img)
 
-    from io import BytesIO
+    # Stable framing: polygon bounds
+    minx, miny = poly_uv.min(axis=0)
+    maxx, maxy = poly_uv.max(axis=0)
+    spanx = max(maxx - minx, 1e-9)
+    spany = max(maxy - miny, 1e-9)
+
+    sx = (W - 2 * padding_px) / spanx
+    sy = (H - 2 * padding_px) / spany
+    s = min(sx, sy)
+
+    def map_pt(p):
+        x = padding_px + (float(p[0]) - float(minx)) * s
+        y = padding_px + (float(p[1]) - float(miny)) * s
+        return (x, y)
+
+    # draw polygon outline
+    poly_pts = [map_pt(p) for p in poly_uv]
+    draw.line(poly_pts + [poly_pts[0]], fill=(0, 0, 0), width=3)
+
+    # draw all Voronoi edges from topology
+    V = d.vertices_uv  # or d.vertices depending on your diagram
+    for e in d.edges:
+        a, b = _edge_endpoints(e)
+        p = map_pt(V[a])
+        q = map_pt(V[b])
+        draw.line([p, q], fill=(0, 0, 0), width=2)
+
     buf = BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight", pad_inches=0)
-    plt.close(fig)
+    img.save(buf, format="PNG")
     return buf.getvalue()
 
 
@@ -56,9 +76,9 @@ def _tilted_rect_xyz(w=100.0, h=60.0):
     # rectangle in 3D, tilted by embedding in a simple plane (z depends on x,y)
     return np.array([
         [0.0, 0.0, 0.0],
-        [w,   0.0, 3.0],
-        [w,   h,   6.0],
-        [0.0, h,   3.0],
+        [w, 0.0, 3.0],
+        [w, h, 6.0],
+        [0.0, h, 3.0],
     ], dtype=np.float64)
 
 
@@ -115,8 +135,8 @@ def test_golden_two_regions_density_change():
     rngL = np.random.default_rng(10)
     rngR = np.random.default_rng(11)
 
-    seeds_left = sample_points_in_polygon(left, target_area_mm2=20.0, rng=rngL)   # denser
-    seeds_right = sample_points_in_polygon(right, target_area_mm2=80.0, rng=rngR) # coarser
+    seeds_left = sample_points_in_polygon(left, target_area_mm2=20.0, rng=rngL)  # denser
+    seeds_right = sample_points_in_polygon(right, target_area_mm2=80.0, rng=rngR)  # coarser
     seeds_uv = np.vstack([seeds_left, seeds_right])
 
     d = compute_voronoi_2d(poly_uv, poly_xyz, seeds_uv, origin, u, v, bounded=True)
